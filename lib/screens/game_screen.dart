@@ -1,11 +1,13 @@
-// lib/screens/game_screen.dart
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/services.dart'; // Import for LogicalKeyboardKey
 import '../logic/game_logic.dart';
 import '../models/direction.dart';
 import '../widgets/snake_segment.dart';
 import '../widgets/food.dart';
+import '../widgets/grass.dart';
 import '../services/sound_manager.dart';
+
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key});
@@ -21,7 +23,6 @@ class _GameScreenState extends State<GameScreen> {
   late GameLogic gameLogic;
   final SoundManager soundManager = SoundManager();
   bool isGameStarted = false;
-  bool isGameLogicInitialized = false;
 
   @override
   void initState() {
@@ -32,24 +33,8 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    if (!isGameLogicInitialized) {
-      pixelSize = 50.0; // Fester Wert für Testzwecke
-      gameLogic = GameLogic(
-        rows: rows,
-        columns: columns,
-        
-        soundManager: soundManager,
-      );
-      isGameLogicInitialized = true;
-    }
-  }
-
-  @override
-  void dispose() {
-    gameLogic.timer?.cancel();
-    soundManager.dispose();
-    super.dispose();
+    pixelSize = 40.0;
+    gameLogic = GameLogic(rows: rows, columns: columns, soundManager: soundManager);
   }
 
   void _startGame() {
@@ -70,15 +55,15 @@ class _GameScreenState extends State<GameScreen> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Spiel beendet!'),
-        content: Text('Deine Punktzahl: ${gameLogic.score}'),
+        title: const Text('Game Over!'),
+        content: Text('Your score: ${gameLogic.score}'),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               _restartGame();
             },
-            child: const Text('Neustarten'),
+            child: const Text('Restart'),
           ),
         ],
       ),
@@ -93,45 +78,21 @@ class _GameScreenState extends State<GameScreen> {
     });
   }
 
-  void _onSwipe(DragEndDetails details) {
-    final velocity = details.velocity.pixelsPerSecond;
-    if (velocity.dx.abs() > velocity.dy.abs()) {
-      if (velocity.dx > 0 && gameLogic.currentDirection != Direction.left) {
-        gameLogic.changeDirection(Direction.right);
-      } else if (velocity.dx < 0 && gameLogic.currentDirection != Direction.right) {
-        gameLogic.changeDirection(Direction.left);
-      }
-    } else {
-      if (velocity.dy > 0 && gameLogic.currentDirection != Direction.up) {
-        gameLogic.changeDirection(Direction.down);
-      } else if (velocity.dy < 0 && gameLogic.currentDirection != Direction.down) {
-        gameLogic.changeDirection(Direction.up);
-      }
-    }
-  }
-
+  // Arrow keys for direction change
   void _handleKeyEvent(RawKeyEvent event) {
     if (event is RawKeyDownEvent) {
       switch (event.logicalKey) {
         case LogicalKeyboardKey.arrowUp:
-          if (gameLogic.currentDirection != Direction.down) {
-            gameLogic.changeDirection(Direction.up);
-          }
+          gameLogic.changeDirection(Direction.up);
           break;
         case LogicalKeyboardKey.arrowDown:
-          if (gameLogic.currentDirection != Direction.up) {
-            gameLogic.changeDirection(Direction.down);
-          }
+          gameLogic.changeDirection(Direction.down);
           break;
         case LogicalKeyboardKey.arrowLeft:
-          if (gameLogic.currentDirection != Direction.right) {
-            gameLogic.changeDirection(Direction.left);
-          }
+          gameLogic.changeDirection(Direction.left);
           break;
         case LogicalKeyboardKey.arrowRight:
-          if (gameLogic.currentDirection != Direction.left) {
-            gameLogic.changeDirection(Direction.right);
-          }
+          gameLogic.changeDirection(Direction.right);
           break;
       }
     }
@@ -140,50 +101,51 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(isGameStarted ? 'Snake Spiel - Punktzahl: ${gameLogic.score}' : 'Snake Spiel'),
-      ),
+      appBar: AppBar(title: Text('Snake Game')),
       body: Focus(
         autofocus: true,
         onKey: (FocusNode node, RawKeyEvent event) {
-          _handleKeyEvent(event);
+          _handleKeyEvent(event);  // Handles arrow keys for classic controls
           return KeyEventResult.handled;
         },
         child: Center(
           child: isGameStarted
               ? GestureDetector(
-                  onPanEnd: _onSwipe,
+                  onPanEnd: (details) {
+                    final velocity = details.velocity.pixelsPerSecond;
+                    if (velocity.dx.abs() > velocity.dy.abs()) {
+                      gameLogic.changeDirection(velocity.dx > 0 ? Direction.right : Direction.left);
+                    } else {
+                      gameLogic.changeDirection(velocity.dy > 0 ? Direction.down : Direction.up);
+                    }
+                  },
                   child: Container(
                     width: columns * pixelSize,
                     height: rows * pixelSize,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black),
-                      color: Colors.grey[300],
-                    ),
+                    color: const Color.fromARGB(104, 98, 145, 12),
                     child: Stack(
                       children: [
-                        Food(
+                        for (int y = 0; y < rows; y++)
+                          for (int x = 0; x < columns; x++)
+                            Grass(
+                              blockSize: pixelSize,
+                              x: x,
+                              y: y,
+                              isHidden: gameLogic.snake.contains(Point(x, y)) || gameLogic.food == Point(x, y),
+                            ),
+                        Food(blockSize: pixelSize, x: gameLogic.food.x, y: gameLogic.food.y),
+                        ...gameLogic.snake.map((pos) => SnakeSegment(
+                          gameLogic: gameLogic,
                           blockSize: pixelSize,
-                          x: gameLogic.food.dx.toInt(), // Konvertierung zu int
-                          y: gameLogic.food.dy.toInt(), // Konvertierung zu int
-                        ),
-                        ...gameLogic.snake.map((pos) {
-                          return SnakeSegment(
-                            gameLogic: gameLogic,
-                            blockSize: pixelSize,
-                            x: pos.dx.toInt(), // Konvertierung zu int
-                            y: pos.dy.toInt(), // Konvertierung zu int
-                            isHead: pos == gameLogic.snake.first,
-                          );
-                        }),
+                          x: pos.x,
+                          y: pos.y,
+                          isHead: pos == gameLogic.snake.first,
+                        )),
                       ],
                     ),
                   ),
                 )
-              : ElevatedButton(
-                  onPressed: _startGame,
-                  child: const Text('Spiel starten'),
-                ),
+              : ElevatedButton(onPressed: _startGame, child: const Text('Start Game')),
         ),
       ),
     );

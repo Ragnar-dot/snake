@@ -3,7 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 class SoundManager {
   final List<AudioPlayer> _players = [];
 
-  Future<void> playSound(String sound, {double volume = 1.0}) async {
+  Future<void> playSound(String sound, double volume) async {
     // Erstelle für jeden Sound eine neue AudioPlayer-Instanz
     AudioPlayer player = AudioPlayer();
     _players.add(player);
