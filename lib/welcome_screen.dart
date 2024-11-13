@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:snake/screens/game_screen.dart';
-import 'package:flutter_gifimage/flutter_gifimage.dart';
+import 'package:gif/gif.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -8,26 +8,30 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
-  late GifController _gifController;
+  late GifController gifController;
 
   @override
   void initState() {
     super.initState();
-    _gifController = GifController(vsync: this);
+    gifController = GifController(vsync: this);
 
-    // Load the GIF and start the animation after it's loaded
+    // Start the GIF animation after the widget is loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _gifController.repeat(
-        min: 0,
-        max: 29, // Replace 29 with the total number of frames - 1
-        period: Duration(seconds: 10),
-      );
+      try {
+        gifController.repeat(
+          min: 0,
+          max: 29, // Try with 20 as a safe frame count. Adjust as needed.
+          period: Duration(seconds: 100),
+        );
+      } catch (e) {
+        print("Error starting GIF animation: $e");
+      }
     });
   }
 
   @override
   void dispose() {
-    _gifController.dispose();
+    gifController.dispose();
     super.dispose();
   }
 
@@ -37,10 +41,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
       body: Stack(
         children: [
           Center(
-            child: GifImage(
-              controller: _gifController,
+            child: Gif(
+              controller: gifController,
               image: AssetImage('assets/videos/snake.gif'),
-              fit: BoxFit.contain,
+              fit: BoxFit.cover,
             ),
           ),
           Positioned(
@@ -50,13 +54,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  _gifController.stop();
+                  gifController.stop();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => GameScreen()),
                   );
                 },
-                child: Text('Start Game'),
+                child: Text('Start Game Snake'),
               ),
             ),
           ),
