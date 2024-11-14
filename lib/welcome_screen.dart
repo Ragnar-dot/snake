@@ -20,7 +20,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
       try {
         gifController.repeat(
           min: 0,
-          max: 29, // Try with 20 as a safe frame count. Adjust as needed.
+          max: 20, // Try with 20 as a safe frame count. Adjust as needed.
           period: Duration(seconds: 100),
         );
       } catch (e) {
@@ -40,7 +40,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
     return Scaffold(
       body: Stack(
         children: [
-          Center(
+          Positioned.fill(
             child: Gif(
               controller: gifController,
               image: AssetImage('assets/videos/snake.gif'),

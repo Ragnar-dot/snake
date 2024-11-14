@@ -14,7 +14,7 @@ class SnakeGame extends StatelessWidget {
     return MaterialApp(
       title: 'Snake Spiel',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.brown,
       ),
       home: WelcomeScreen(), // Startet den Begrüßungsbildschirm
       debugShowCheckedModeBanner: false,
