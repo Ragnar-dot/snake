@@ -11,14 +11,14 @@ class SnakeSegment extends StatelessWidget {
   final GameLogic gameLogic;
 
   const SnakeSegment({
-    Key? key,
+    super.key,
     required this.blockSize,
     required this.x,
     required this.y,
     required this.gameLogic,
     this.isHead = false,
     this.isTail = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

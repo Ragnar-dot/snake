@@ -3,6 +3,8 @@ import 'package:snake/screens/game_screen.dart';
 import 'package:gif/gif.dart';
 
 class WelcomeScreen extends StatefulWidget {
+  const WelcomeScreen({super.key});
+
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
@@ -21,7 +23,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
         gifController.repeat(
           min: 0,
           max: 20, // Try with 20 as a safe frame count. Adjust as needed.
-          period: Duration(seconds: 100),
+          period: const Duration(seconds: 100),
         );
       } catch (e) {
         print("Error starting GIF animation: $e");
@@ -43,7 +45,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
           Positioned.fill(
             child: Gif(
               controller: gifController,
-              image: AssetImage('assets/videos/snake.gif'),
+              image: const AssetImage('assets/videos/snake.gif'),
               fit: BoxFit.cover,
             ),
           ),
@@ -57,10 +59,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
                   gifController.stop();
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => GameScreen()),
+                    MaterialPageRoute(builder: (context) => const GameScreen()),
                   );
                 },
-                child: Text('Start Game Snake'),
+                child: const Text('Start Game Snake'),
               ),
             ),
           ),

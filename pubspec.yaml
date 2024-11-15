@@ -26,6 +26,10 @@ flutter:
   assets:
     - assets/sounds/
     - assets/videos/snake.gif
+    - assets/sounds/tail.png
+    - assets/sounds/background_music.mp3
+    - assets/sounds/lost_life.mp3
+    - assets/sounds/stone.png
 
     
 

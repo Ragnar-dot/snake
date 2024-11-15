@@ -8,12 +8,12 @@ class Grass extends StatelessWidget {
   final bool isHidden;
 
   const Grass({
-    Key? key,
+    super.key,
     required this.blockSize,
     required this.x,
     required this.y,
     required this.isHidden,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
