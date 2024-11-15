@@ -12,24 +12,24 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
   late GifController gifController;
 
-  @override
-  void initState() {
-    super.initState();
-    gifController = GifController(vsync: this);
+@override
+void initState() {
+  super.initState();
+  gifController = GifController(vsync: this);
 
-    // Start the GIF animation after the widget is loaded
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      try {
-        gifController.repeat(
-          min: 0,
-          max: 20, // Try with 20 as a safe frame count. Adjust as needed.
-          period: const Duration(seconds: 100),
-        );
-      } catch (e) {
-        print("Error starting GIF animation: $e");
-      }
-    });
-  }
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    print("Controller bounds: lower=${gifController.lowerBound}, upper=${gifController.upperBound}");
+    try {
+      gifController.repeat(
+        min: gifController.lowerBound, // Ensure min is within bounds
+        max: gifController.upperBound, // Ensure max matches the bounds
+        period: const Duration(seconds: 5),
+      );
+    } catch (e) {
+      print("Error starting GIF animation: $e");
+    }
+  });
+}
 
   @override
   void dispose() {
@@ -56,13 +56,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateM
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  gifController.stop();
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const GameScreen()),
                   );
                 },
-                child: const Text('Start Game Snake'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green, // Green button color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                ),
+                child: const Text(
+                  'Take a Bite',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
             ),
           ),
