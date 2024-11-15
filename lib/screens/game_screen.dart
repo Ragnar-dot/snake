@@ -10,7 +10,14 @@ import '../widgets/grass.dart';
 import '../services/sound_manager.dart';
 
 class GameScreen extends StatefulWidget {
-  const GameScreen({super.key});
+  final String playerName; // Add player name parameter
+  final Function(int score) onGameEnd; // Callback to handle game end
+
+  const GameScreen({
+    Key? key,
+    required this.playerName,
+    required this.onGameEnd,
+  }) : super(key: key);
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -54,7 +61,11 @@ class _GameScreenState extends State<GameScreen> {
     setState(() {
       rows = (availableHeight / pixelSize).floor().clamp(10, 30);
       columns = (availableWidth / pixelSize).floor().clamp(10, 30);
-      gameLogic = GameLogic(rows: rows, columns: columns, soundManager: soundManager);
+      gameLogic = GameLogic(
+        rows: rows,
+        columns: columns,
+        soundManager: soundManager,
+      );
     });
   }
 
@@ -65,7 +76,10 @@ class _GameScreenState extends State<GameScreen> {
       gameLogic!.start(_updateUI, _onGameOver);
     });
     if (isMusicPlaying) {
-      await _audioPlayer.play(AssetSource('sounds/background_music.mp3'), volume: 0.5);
+      await _audioPlayer.play(
+        AssetSource('sounds/background_music.mp3'),
+        volume: 0.5,
+      );
       _audioPlayer.setReleaseMode(ReleaseMode.loop);
     }
   }
@@ -79,28 +93,81 @@ class _GameScreenState extends State<GameScreen> {
       isGameStarted = false;
     });
     await _audioPlayer.stop();
+    widget.onGameEnd(gameLogic?.score ?? 0); // Pass score to callback
     _showGameOverDialog();
   }
 
-  void _showGameOverDialog() {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Game Over!'),
-        content: Text('Your score: ${gameLogic?.score ?? 0}'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _restartGame();
-            },
-            child: const Text('Restart'),
+void _showGameOverDialog() {
+  showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      backgroundColor: Colors.black87, // Dark background for a sad tone
+      title: Text(
+        'Fate Has Spoken!',
+        style: TextStyle(
+          fontFamily: 'CarterOne', // Use Gothic or suitable font
+          fontSize: 24,
+          color: Colors.red[300],
+        ),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '${widget.playerName}, thy journey ends here.',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.white70,
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Thy score: ${gameLogic?.score ?? 0}',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.greenAccent,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
-      barrierDismissible: false,
-    );
-  }
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            _restartGame();
+          },
+          child: Text(
+            'Awaken Once More',
+            style: TextStyle(
+              fontFamily: 'CarterOne',
+              fontSize: 16,
+              color: Colors.redAccent,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.pop(context); // Return to Start Screen
+          },
+          child: Text(
+            'Return to the Hall',
+            style: TextStyle(
+              fontFamily: 'CarterOne',
+              fontSize: 16,
+              color: Colors.blueGrey[300],
+            ),
+          ),
+        ),
+      ],
+    ),
+    barrierDismissible: false,
+  );
+}
 
   void _restartGame() {
     setState(() {
@@ -143,7 +210,7 @@ class _GameScreenState extends State<GameScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Snake Game'),
+        title: Text('Snake Game - ${widget.playerName}'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -190,7 +257,11 @@ class _GameScreenState extends State<GameScreen> {
           Row(
             children: List.generate(
               gameLogic?.lives ?? 0,
-              (index) => const Icon(Icons.favorite, color: Colors.red, size: 24),
+              (index) => const Icon(
+                Icons.favorite,
+                color: Colors.red,
+                size: 24,
+              ),
             ),
           ),
         ],
@@ -198,74 +269,94 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildGameArea() {
-    return Expanded(
-      child: Center(
-        child: isGameStarted
-            ? GestureDetector(
-                onPanEnd: (details) {
-                  final velocity = details.velocity.pixelsPerSecond;
-                  if (velocity.dx.abs() > velocity.dy.abs()) {
-                    gameLogic?.changeDirection(velocity.dx > 0 ? Direction.right : Direction.left);
-                  } else {
-                    gameLogic?.changeDirection(velocity.dy > 0 ? Direction.down : Direction.up);
-                  }
-                },
-                child: Container(
-                  width: columns * pixelSize,
-                  height: rows * pixelSize,
-                  color: backgroundColor,
-                  child: Stack(
-                    children: [
-                      for (int y = 0; y < rows; y++)
-                        for (int x = 0; x < columns; x++)
-                          Grass(
-                            blockSize: pixelSize,
-                            x: x,
-                            y: y,
-                            isHidden: gameLogic?.snake.contains(Point(x, y)) ?? false,
-                          ),
-                      // Display forbidden blocks
-                      for (final block in gameLogic?.forbiddenBlocks ?? {})
-                        Positioned(
-                          left: block.x * pixelSize,
-                          top: block.y * pixelSize,
-                          child: Container(
-                            width: pixelSize,
-                            height: pixelSize,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage('assets/sounds/stone.png'),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+Widget _buildGameArea() {
+  return Expanded(
+    child: Center(
+      child: isGameStarted
+          ? GestureDetector(
+              onPanEnd: (details) {
+                final velocity = details.velocity.pixelsPerSecond;
+                if (velocity.dx.abs() > velocity.dy.abs()) {
+                  gameLogic?.changeDirection(
+                      velocity.dx > 0 ? Direction.right : Direction.left);
+                } else {
+                  gameLogic?.changeDirection(
+                      velocity.dy > 0 ? Direction.down : Direction.up);
+                }
+              },
+              child: Container(
+                width: columns * pixelSize,
+                height: rows * pixelSize,
+                color: backgroundColor,
+                child: Stack(
+                  children: [
+                    // Render grass blocks
+                    for (int y = 0; y < rows; y++)
+                      for (int x = 0; x < columns; x++)
+                        Grass(
+                          blockSize: pixelSize,
+                          x: x,
+                          y: y,
+                          isHidden:
+                              gameLogic?.snake.contains(Point(x, y)) ?? false,
+                        ),
+                    // Render forbidden blocks as images
+                    for (final block in gameLogic?.forbiddenBlocks ?? {})
+                      Positioned(
+                        left: block.x * pixelSize,
+                        top: block.y * pixelSize,
+                        child: SizedBox(
+                          width: pixelSize,
+                          height: pixelSize,
+                          child: Image.asset(
+                            'assets/sounds/stone.png',
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      Food(
-                        blockSize: pixelSize,
-                        x: gameLogic?.food.x ?? 0,
-                        y: gameLogic?.food.y ?? 0,
-                        snakeX: gameLogic?.getSnakeHeadPosition().x ?? 0,
-                        snakeY: gameLogic?.getSnakeHeadPosition().y ?? 0,
                       ),
-                      ...?gameLogic?.snake.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final pos = entry.value;
-                        return SnakeSegment(
-                          gameLogic: gameLogic!,
-                          blockSize: pixelSize,
-                          x: pos.x,
-                          y: pos.y,
-                          isHead: index == 0,
-                          isTail: index == gameLogic!.snake.length - 1,
-                        );
-                      }),
-                    ],
-                  ),
+                    // Render food
+                    Food(
+                      blockSize: pixelSize,
+                      x: gameLogic?.food.x ?? 0,
+                      y: gameLogic?.food.y ?? 0,
+                      snakeX: gameLogic?.snake.first.x ?? 0,
+                      snakeY: gameLogic?.snake.first.y ?? 0,
+                    ),
+                    // Render snake segments
+                    ...?gameLogic?.snake.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final pos = entry.value;
+                      return SnakeSegment(
+                        gameLogic: gameLogic!,
+                        blockSize: pixelSize,
+                        x: pos.x,
+                        y: pos.y,
+                        isHead: index == 0,
+                        isTail: index == gameLogic!.snake.length - 1,
+                      );
+                    }),
+                  ],
                 ),
-              )
-            : ElevatedButton(onPressed: _startGame, child: const Text('Start Game')),
-      ),
-    );
-  }
+              ),
+            )
+          : ElevatedButton(
+              onPressed: _startGame,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 20,
+                ),
+              ),
+              child: const Text(
+                'Summon the Serpent’s Hunger',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
+            ),
+    ),
+  );
+}
 }

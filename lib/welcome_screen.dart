@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:snake/screens/game_screen.dart';
+import 'package:snake/screens/start_screen.dart';
 import 'package:gif/gif.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -12,24 +13,23 @@ class WelcomeScreen extends StatefulWidget {
 class _WelcomeScreenState extends State<WelcomeScreen> with TickerProviderStateMixin {
   late GifController gifController;
 
-@override
-void initState() {
-  super.initState();
-  gifController = GifController(vsync: this);
+  @override
+  void initState() {
+    super.initState();
+    gifController = GifController(vsync: this);
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    print("Controller bounds: lower=${gifController.lowerBound}, upper=${gifController.upperBound}");
-    try {
-      gifController.repeat(
-        min: gifController.lowerBound, // Ensure min is within bounds
-        max: gifController.upperBound, // Ensure max matches the bounds
-        period: const Duration(seconds: 5),
-      );
-    } catch (e) {
-      print("Error starting GIF animation: $e");
-    }
-  });
-}
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        gifController.repeat(
+          min: 0,
+          max: gifController.upperBound,
+          period: const Duration(seconds: 5),
+        );
+      } catch (e) {
+        print("Error starting GIF animation: $e");
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -58,19 +58,22 @@ void initState() {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const GameScreen()),
+                    MaterialPageRoute(builder: (context) => const StartScreen()),
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Green button color
+                  backgroundColor: const Color.fromARGB(255, 122, 175, 76),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                 ),
-                child: const Text(
-                  'Take a Bite',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                child: Text(
+                  'Awaken the Serpent',
+                  style: GoogleFonts.rubikWetPaint(
+                    fontSize: 18,
+                    color: const Color.fromARGB(255, 255, 255, 255), // White color
+                  ),
                 ),
               ),
             ),

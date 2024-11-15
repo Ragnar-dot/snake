@@ -1,8 +1,9 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'welcome_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures proper plugin initialization
+
   runApp(const SnakeGame());
 }
 
@@ -16,7 +17,7 @@ class SnakeGame extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.brown,
       ),
-      home: WelcomeScreen(), // Startet den Begrüßungsbildschirm
+      home: const WelcomeScreen(), // Startet den Begrüßungsbildschirm
       debugShowCheckedModeBanner: false,
     );
   }
