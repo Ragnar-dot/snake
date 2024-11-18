@@ -11,7 +11,7 @@ class GameLogic {
 
   Direction currentDirection = Direction.right;
   List<Point<int>> snake = [const Point(10, 10)];
-  Point<int> food = const Point(15, 15);
+  Point<int> food = const Point(30, 30);
   Set<Point<int>> forbiddenBlocks = {}; // Blocks removed from the field
   Timer? timer;
   double gameSpeed = 150; // Milliseconds
@@ -141,7 +141,7 @@ class GameLogic {
     generateFood();
     isGameOver = false;
     score = 0;
-    gameSpeed = 200;
+    gameSpeed = 150;
     lives = 3; // Reset lives
     forbiddenBlocks.clear(); // Reset forbidden blocks
     timer?.cancel();

@@ -26,7 +26,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   int rows = 0;
   int columns = 0;
-  double pixelSize = 20.0;
+  double pixelSize = 25.0;
   GameLogic? gameLogic;
   final SoundManager soundManager = SoundManager();
   bool isGameStarted = false;
@@ -59,8 +59,8 @@ class _GameScreenState extends State<GameScreen> {
     final availableHeight = screenHeight - appBarHeight;
 
     setState(() {
-      rows = (availableHeight / pixelSize).floor().clamp(10, 30);
-      columns = (availableWidth / pixelSize).floor().clamp(10, 30);
+      rows = (availableHeight / pixelSize).floor().clamp(10, 40);
+      columns = (availableWidth / pixelSize).floor().clamp(10, 40);
       gameLogic = GameLogic(
         rows: rows,
         columns: columns,
@@ -115,7 +115,7 @@ void _showGameOverDialog() {
         children: [
           Text(
             '${widget.playerName}, thy journey ends here.',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               color: Colors.white70,
               fontStyle: FontStyle.italic,
@@ -125,7 +125,7 @@ void _showGameOverDialog() {
           const SizedBox(height: 20),
           Text(
             'Thy score: ${gameLogic?.score ?? 0}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.greenAccent,
               fontWeight: FontWeight.bold,
@@ -140,7 +140,7 @@ void _showGameOverDialog() {
             Navigator.of(context).pop();
             _restartGame();
           },
-          child: Text(
+          child: const Text(
             'Awaken Once More',
             style: TextStyle(
               fontFamily: 'CarterOne',
@@ -287,7 +287,7 @@ Widget _buildGameArea() {
               child: Container(
                 width: columns * pixelSize,
                 height: rows * pixelSize,
-                color: backgroundColor,
+                color: const Color.fromARGB(104, 124, 155, 66),
                 child: Stack(
                   children: [
                     // Render grass blocks
@@ -305,9 +305,12 @@ Widget _buildGameArea() {
                       Positioned(
                         left: block.x * pixelSize,
                         top: block.y * pixelSize,
-                        child: SizedBox(
+                        child: Container(
                           width: pixelSize,
                           height: pixelSize,
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 120, 175, 76),
+                          ),
                           child: Image.asset(
                             'assets/sounds/stone.png',
                             fit: BoxFit.cover,

@@ -36,6 +36,7 @@ class Food extends StatelessWidget {
             'https://media.tenor.com/AdhmRK5AoE4AAAAi/ugly-rat.gif', // Pfad zum Bild
             width: blockSize, // Bildgröße
             height: blockSize,
+            fit: BoxFit.cover, // Bildgröße anpassen
           ),
         ),
       ),

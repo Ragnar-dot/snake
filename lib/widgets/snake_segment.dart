@@ -40,33 +40,38 @@ class SnakeSegment extends StatelessWidget {
         break;
     }
 
+    // Offset to create slight overlap
+    const double overlapOffset = 1.0;
+
     return Positioned(
-      left: x * blockSize,
-      top: y * blockSize,
+      left: x * blockSize - (isHead ? 0 : overlapOffset),
+      top: y * blockSize - (isHead ? 0 : overlapOffset),
       child: RotatedBox(
         quarterTurns: quarterTurns,
         child: Container(
-          width: blockSize,
-          height: blockSize,
+          width: blockSize + (isHead ? 0 : overlapOffset * 4),
+          height: blockSize + (isHead ? 0 : overlapOffset * 4),
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(10),
             image: isHead
-                ? const DecorationImage(
-                    image: NetworkImage(
-                      'https://preview.redd.it/4ntn4a5zitq91.png?auto=webp&s=99ac3b9c661becf92590b87e5ba02753d45d9032',
-                    ),
-                    fit: BoxFit.cover,
+                ? DecorationImage(
+                        image: AssetImage(
+                                    'assets/sounds/snakeHead.png',
+                                  ),
+                        fit: BoxFit.cover,
+                    //fit: BoxFit.cover,
                   )
                 : isTail
                     ? const DecorationImage(
                         image: AssetImage(
-                          'assets/sounds/tail.png', 
+                          'assets/sounds/tail.png',  // tail 
                         ),
                         fit: BoxFit.cover,
                       )
                     : const DecorationImage(
                         image: NetworkImage(
-                          "https://img.freepik.com/premium-vector/abstract-pattern-design-fabric-cloth-patterngreen-background-with-patternsreptile-skin-seaml_1049145-245.jpg?semt=ais_hybrid",
+                          "https://img.freepik.com/premium-vector/abstract-pattern-design-fabric-cloth-patterngreen-background-with-patternsreptile-skin-seaml_1049145-245.jpg?semt=ais_hybrid", // body
                         ),
                         fit: BoxFit.cover,
                       ),
