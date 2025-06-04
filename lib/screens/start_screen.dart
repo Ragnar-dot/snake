@@ -4,7 +4,7 @@ import 'package:snake/screens/game_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class StartScreen extends StatefulWidget {
-  const StartScreen({Key? key}) : super(key: key);
+  const StartScreen({super.key});
 
   @override
   _StartScreenState createState() => _StartScreenState();
@@ -95,10 +95,10 @@ class _StartScreenState extends State<StartScreen> {
             const SizedBox(height: 20),
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Player Name',
                 labelStyle: TextStyle(color: Colors.green),
-                border: const OutlineInputBorder(),
+                border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.green),
                 ),
@@ -138,11 +138,11 @@ class _StartScreenState extends State<StartScreen> {
                   return ListTile(
                     title: Text(
                       score['name'],
-                      style: TextStyle(color: Colors.green),
+                      style: const TextStyle(color: Colors.green),
                     ),
                     trailing: Text(
                       score['score'].toString(),
-                      style: TextStyle(color: Colors.green),
+                      style: const TextStyle(color: Colors.green),
                     ),
                   );
                 },

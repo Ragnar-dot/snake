@@ -55,7 +55,7 @@ class SnakeSegment extends StatelessWidget {
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(10),
             image: isHead
-                ? DecorationImage(
+                ? const DecorationImage(
                         image: AssetImage(
                                     'assets/sounds/snakeHead.png',
                                   ),

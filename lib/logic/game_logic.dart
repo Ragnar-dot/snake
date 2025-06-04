@@ -26,6 +26,7 @@ class GameLogic {
   });
 
   void start(Function onUpdate, Function onGameOver) {
+    generateFood();
     timer = Timer.periodic(Duration(milliseconds: gameSpeed.toInt()), (timer) {
       update(onUpdate, onGameOver);
     });
@@ -77,8 +78,8 @@ class GameLogic {
       soundManager.playSound('hissing.mp3', 0.6);
       generateFood();
 
-      if (score >= 150 && score % 30 == 0) {
-        addForbiddenBlock(); // Add a forbidden block every 30 points after 150
+      if (score >= 100 && score % 30 == 0) {
+        addForbiddenBlock(); // Add a forbidden block every 30 points after 100
       }
 
       if (score % 50 == 0 && gameSpeed > 100) {

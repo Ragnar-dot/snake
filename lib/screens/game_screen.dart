@@ -14,10 +14,10 @@ class GameScreen extends StatefulWidget {
   final Function(int score) onGameEnd; // Callback to handle game end
 
   const GameScreen({
-    Key? key,
+    super.key,
     required this.playerName,
     required this.onGameEnd,
-  }) : super(key: key);
+  });
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -36,7 +36,7 @@ class _GameScreenState extends State<GameScreen> {
 
   static const double padding = 40.0;
   static const double appBarHeight = 160.0;
-  static const Color backgroundColor = Color.fromARGB(104, 98, 145, 12);
+  static const Color backgroundColor = Color.fromARGB(85, 105, 148, 25);
 
   @override
   void initState() {
@@ -59,8 +59,8 @@ class _GameScreenState extends State<GameScreen> {
     final availableHeight = screenHeight - appBarHeight;
 
     setState(() {
-      rows = (availableHeight / pixelSize).floor().clamp(10, 40);
-      columns = (availableWidth / pixelSize).floor().clamp(10, 40);
+      rows = (availableHeight / pixelSize).floor().clamp(15, 30);
+      columns = (availableWidth / pixelSize).floor().clamp(15, 30);
       gameLogic = GameLogic(
         rows: rows,
         columns: columns,
@@ -287,7 +287,13 @@ Widget _buildGameArea() {
               child: Container(
                 width: columns * pixelSize,
                 height: rows * pixelSize,
-                color: const Color.fromARGB(104, 124, 155, 66),
+                  
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(106, 77, 105, 25),
+
+                
+                ),
+                
                 child: Stack(
                   children: [
                     // Render grass blocks
@@ -309,7 +315,7 @@ Widget _buildGameArea() {
                           width: pixelSize,
                           height: pixelSize,
                           decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 120, 175, 76),
+                            
                           ),
                           child: Image.asset(
                             'assets/sounds/stone.png',

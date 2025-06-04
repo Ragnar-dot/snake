@@ -29,7 +29,7 @@ class Food extends StatelessWidget {
         child: Container(
           width: blockSize,
           height: blockSize,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             shape: BoxShape.rectangle,
           ),
           child: Image.network(
